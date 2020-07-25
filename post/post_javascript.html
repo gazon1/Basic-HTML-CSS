@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <!-- 2020-07-24 Пт 15:57 -->
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ЯНДЕКС.ПОЧТА: КАК МЫ ИЗМЕРЯЕМ СКОРОСТЬ ЗАГРУЗКИ И УЛУЧШАЕМ ЕЁ</title>
+    <meta name="generator" content="Org mode" />
+    <meta name="author" content="@doochik С++ разработик Компания: Яндекс" />
+    <style type="text/css">
+     <!--/*--><![CDATA[/*><!--*/
+     .title  { text-align: center;
+         margin-bottom: .2em; }
+     .subtitle { text-align: center;
+         font-size: medium;
+         font-weight: bold;
+         margin-top:0; }
+     .todo   { font-family: monospace; color: red; }
+     .done   { font-family: monospace; color: green; }
+     .priority { font-family: monospace; color: orange; }
+     .tag    { background-color: #eee; font-family: monospace;
+         padding: 2px; font-size: 80%; font-weight: normal; }
+     .timestamp { color: #bebebe; }
+     .timestamp-kwd { color: #5f9ea0; }
+     .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+     .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+     .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+     .underline { text-decoration: underline; }
+     #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+     p.verse { margin-left: 3%; }
+     pre {
+         border: 1px solid #ccc;
+         box-shadow: 3px 3px 3px #eee;
+         padding: 8pt;
+         font-family: monospace;
+         overflow: auto;
+         margin: 1.2em;
+     }
+     pre.src {
+         position: relative;
+         overflow: visible;
+         padding-top: 1.2em;
+     }
+     pre.src:before {
+         display: none;
+         position: absolute;
+         background-color: white;
+         top: -10px;
+         right: 10px;
+         padding: 3px;
+         border: 1px solid black;
+     }
+     pre.src:hover:before { display: inline;}
+     /* Languages per Org manual */
+     pre.src-asymptote:before { content: 'Asymptote'; }
+     pre.src-awk:before { content: 'Awk'; }
+     pre.src-C:before { content: 'C'; }
+     /* pre.src-C++ doesn't work in CSS */
+     pre.src-clojure:before { content: 'Clojure'; }
+     pre.src-css:before { content: 'CSS'; }
+     pre.src-D:before { content: 'D'; }
+     pre.src-ditaa:before { content: 'ditaa'; }
+     pre.src-dot:before { content: 'Graphviz'; }
+     pre.src-calc:before { content: 'Emacs Calc'; }
+     pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+     pre.src-fortran:before { content: 'Fortran'; }
+     pre.src-gnuplot:before { content: 'gnuplot'; }
+     pre.src-haskell:before { content: 'Haskell'; }
+     pre.src-hledger:before { content: 'hledger'; }
+     pre.src-java:before { content: 'Java'; }
+     pre.src-js:before { content: 'Javascript'; }
+     pre.src-latex:before { content: 'LaTeX'; }
+     pre.src-ledger:before { content: 'Ledger'; }
+     pre.src-lisp:before { content: 'Lisp'; }
+     pre.src-lilypond:before { content: 'Lilypond'; }
+     pre.src-lua:before { content: 'Lua'; }
+     pre.src-matlab:before { content: 'MATLAB'; }
+     pre.src-mscgen:before { content: 'Mscgen'; }
+     pre.src-ocaml:before { content: 'Objective Caml'; }
+     pre.src-octave:before { content: 'Octave'; }
+     pre.src-org:before { content: 'Org mode'; }
+     pre.src-oz:before { content: 'OZ'; }
+     pre.src-plantuml:before { content: 'Plantuml'; }
+     pre.src-processing:before { content: 'Processing.js'; }
+     pre.src-python:before { content: 'Python'; }
+     pre.src-R:before { content: 'R'; }
+     pre.src-ruby:before { content: 'Ruby'; }
+     pre.src-sass:before { content: 'Sass'; }
+     pre.src-scheme:before { content: 'Scheme'; }
+     pre.src-screen:before { content: 'Gnu Screen'; }
+     pre.src-sed:before { content: 'Sed'; }
+     pre.src-sh:before { content: 'shell'; }
+     pre.src-sql:before { content: 'SQL'; }
+     pre.src-sqlite:before { content: 'SQLite'; }
+     /* additional languages in org.el's org-babel-load-languages alist */
+     pre.src-forth:before { content: 'Forth'; }
+     pre.src-io:before { content: 'IO'; }
+     pre.src-J:before { content: 'J'; }
+     pre.src-makefile:before { content: 'Makefile'; }
+     pre.src-maxima:before { content: 'Maxima'; }
+     pre.src-perl:before { content: 'Perl'; }
+     pre.src-picolisp:before { content: 'Pico Lisp'; }
+     pre.src-scala:before { content: 'Scala'; }
+     pre.src-shell:before { content: 'Shell Script'; }
+     pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+     /* additional language identifiers per "defun org-babel-execute"
+        in ob-*.el */
+     pre.src-cpp:before  { content: 'C++'; }
+     pre.src-abc:before  { content: 'ABC'; }
+     pre.src-coq:before  { content: 'Coq'; }
+     pre.src-groovy:before  { content: 'Groovy'; }
+     /* additional language identifiers from org-babel-shell-names in
+        ob-shell.el: ob-shell is the only babel language using a lambda to put
+        the execution function name together. */
+     pre.src-bash:before  { content: 'bash'; }
+     pre.src-csh:before  { content: 'csh'; }
+     pre.src-ash:before  { content: 'ash'; }
+     pre.src-dash:before  { content: 'dash'; }
+     pre.src-ksh:before  { content: 'ksh'; }
+     pre.src-mksh:before  { content: 'mksh'; }
+     pre.src-posh:before  { content: 'posh'; }
+     /* Additional Emacs modes also supported by the LaTeX listings package */
+     pre.src-ada:before { content: 'Ada'; }
+     pre.src-asm:before { content: 'Assembler'; }
+     pre.src-caml:before { content: 'Caml'; }
+     pre.src-delphi:before { content: 'Delphi'; }
+     pre.src-html:before { content: 'HTML'; }
+     pre.src-idl:before { content: 'IDL'; }
+     pre.src-mercury:before { content: 'Mercury'; }
+     pre.src-metapost:before { content: 'MetaPost'; }
+     pre.src-modula-2:before { content: 'Modula-2'; }
+     pre.src-pascal:before { content: 'Pascal'; }
+     pre.src-ps:before { content: 'PostScript'; }
+     pre.src-prolog:before { content: 'Prolog'; }
+     pre.src-simula:before { content: 'Simula'; }
+     pre.src-tcl:before { content: 'tcl'; }
+     pre.src-tex:before { content: 'TeX'; }
+     pre.src-plain-tex:before { content: 'Plain TeX'; }
+     pre.src-verilog:before { content: 'Verilog'; }
+     pre.src-vhdl:before { content: 'VHDL'; }
+     pre.src-xml:before { content: 'XML'; }
+     pre.src-nxml:before { content: 'XML'; }
+     /* add a generic configuration mode; LaTeX export needs an additional
+        (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+     pre.src-conf:before { content: 'Configuration File'; }
+
+     table { border-collapse:collapse; }
+     caption.t-above { caption-side: top; }
+     caption.t-bottom { caption-side: bottom; }
+     td, th { vertical-align:top;  }
+     th.org-right  { text-align: center;  }
+     th.org-left   { text-align: center;   }
+     th.org-center { text-align: center; }
+     td.org-right  { text-align: right;  }
+     td.org-left   { text-align: left;   }
+     td.org-center { text-align: center; }
+     dt { font-weight: bold; }
+     .footpara { display: inline; }
+     .footdef  { margin-bottom: 1em; }
+     .figure { padding: 1em; }
+     .figure p { text-align: center; }
+     .inlinetask {
+         padding: 10px;
+         border: 2px solid gray;
+         margin: 10px;
+         background: #ffffcc;
+     }
+     #org-div-home-and-up
+     { text-align: right; font-size: 70%; white-space: nowrap; }
+     textarea { overflow-x: auto; }
+     .linenr { font-size: smaller }
+     .code-highlighted { background-color: #ffff00; }
+     .org-info-js_info-navigation { border-style: none; }
+     #org-info-js_console-label
+     { font-size: 10px; font-weight: bold; white-space: nowrap; }
+     .org-info-js_search-highlight
+     { background-color: #ffff00; color: #000000; font-weight: bold; }
+     .org-svg { width: 90%; }
+     /*]]>*/-->
+    </style>
+    <script type="text/javascript">
+     /*
+        @licstart  The following is the entire license notice for the
+        JavaScript code in this tag.
+
+        Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+        The JavaScript code in this tag is free software: you can
+        redistribute it and/or modify it under the terms of the GNU
+        General Public License (GNU GPL) as published by the Free Software
+        Foundation, either version 3 of the License, or (at your option)
+        any later version.  The code is distributed WITHOUT ANY WARRANTY;
+        without even the implied warranty of MERCHANTABILITY or FITNESS
+        FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+        As additional permission under GNU GPL version 3 section 7, you
+        may distribute non-source (e.g., minimized or compacted) forms of
+        that code without the copy of the GNU GPL normally required by
+        section 4, provided you include this license notice and a URL
+        through which recipients can access the Corresponding Source.
+
+
+        @licend  The above is the entire license notice
+        for the JavaScript code in this tag.
+      */
+     <!--/*--><![CDATA[/*><!--*/
+                                   function CodeHighlightOn(elem, id)
+                                   {
+                                       var target = document.getElementById(id);
+                                       if(null != target) {
+                                           elem.cacheClassElem = elem.className;
+                                           elem.cacheClassTarget = target.className;
+                                           target.className = "code-highlighted";
+                                           elem.className   = "code-highlighted";
+                                       }
+                                   }
+     function CodeHighlightOff(elem, id)
+     {
+         var target = document.getElementById(id);
+         if(elem.cacheClassElem)
+             elem.className = elem.cacheClassElem;
+         if(elem.cacheClassTarget)
+             target.className = elem.cacheClassTarget;
+     }
+     /*]]>*///-->
+    </script>
+  </head>
+  <body>
+    <div id="content">
+      <header>
+      <h1 class="title">ЯНДЕКС.ПОЧТА: КАК МЫ ИЗМЕРЯЕМ СКОРОСТЬ ЗАГРУЗКИ И УЛУЧШАЕМ ЕЁ</h1>
+      </header>
+      <div id="outline-container-orgcde5ed6" class="outline-2">
+        <h2 id="orgcde5ed6"><span class="section-number-2">1</span> Блог компании Яндекс.</h2>
+        <div class="outline-text-2" id="text-1">
+        </div>
+        <div id="outline-container-orgd9d0839" class="outline-3">
+          <h3 id="orgd9d0839"><span class="section-number-3">1.1</span> ЯНДЕКС.ПОЧТА: КАК МЫ ИЗМЕРЯЕМ СКОРОСТЬ ЗАГРУЗКИ И УЛУЧШАЕМ ЕЁ</h3>
+          <div class="outline-text-3" id="text-1-1">
+            <p>
+              Если ваш сайт медленно грузится, вы рискуете тем, что люди не оценят ни то,
+              какой он красивый, ни то, какой он удобный. Никому не понравится, когда все
+              тормозит. Мы регулярно добавляем в Яндекс.Почту новую функциональность,
+              иногда — исправляем ошибки, а это значит, у нас постоянно появляются новый код
+              и новая логика. Всё это напрямую влияет на скорость работы интерфейса.
+            </p>
+          </div>
+
+          <div id="outline-container-orgdf0a8af" class="outline-4">
+            <h4 id="orgdf0a8af"><span class="section-number-4">1.1.1</span> Что мы измеряем</h4>
+            <div class="outline-text-4" id="text-1-1-1">
+              <p>
+                Этапы первой загрузки:
+              </p>
+              <ul class="org-ul">
+                <li>подготовка;</li>
+                <li>загрузка статики (<abbr>HTTP</abbr>-запрос и парсинг);</li>
+                <li>исполнение модулей;</li>
+                <li>инициализация базовых объектов;</li>
+                <li>отрисовка.</li>
+              </ul>
+
+              <p>
+                Этапы отрисовки любой страницы:
+              </p>
+              <ul class="org-ul">
+                <li>подготовка к запросу на сервер;</li>
+                <li>запрос данных с сервера;</li>
+                <li>шаблонизация;</li>
+                <li>обновление <abbr title="Document Object Model">DOM</abbr>.</li>
+              </ul>
+
+              <p class="verse">
+                — <q>«Ок, теперь у нас есть метрики, мы можем отправить их на сервер»</q> - говорим мы<br />
+                — <q>«Что же дальше?»</q> - вопрошаете вы<br />
+                — <q>«А давай построим график!»</q> - отвечаем мы<br />
+                — <q>«А что будем считать?»</q> - уточняете вы<br />
+              </p>
+
+              <p>
+                Как вы знаете, медиана – это серединное, а не среднее значение в выборке.
+                Если у нас имеются числа 1, 2, 2, 3, 8, 10, 20, то медиана – 3, а среднее – 6,5.
+                В общем случае медиана отлично показывает, сколько грузится средний пользователь.
+              </p>
+
+              <p>
+                В случае ускорения или замедления медиана, конечно, изменится. Но она не может
+                рассказать, сколько пользователей ускорилось, а сколько замедлилось.
+              </p>
+
+              <p>
+                <b>APDEX</b> – метрика, которая сразу говорит: хорошо или плохо. Метрика
+                работает очень просто. Мы выбираем временной интервал [0; t], такой, что если
+                время показа страницы попало в него, то пользователь счастлив. Берем еще один
+                интервал, (t; 4t] (в четыре раза больше первого), и считаем, что если страница
+                показана за это время, то пользователь в целом удовлетворен скоростью работы,
+                но уже не настолько счастлив. И применяем формулу:
+              </p>
+
+              <p>
+                (кол-во счастливых пользователей + кол-во удовлетворенных / 2) / (кол-во всех).
+                Получается значение от нуля до единицы, которое, видимо, лучше всего показывает,
+                хорошо или плохо работает почта.
+              </p>
+            </div>
+          </div>
+
+          <div id="outline-container-orgf3e6f60" class="outline-4">
+            <h4 id="orgf3e6f60"><span class="section-number-4">1.1.2</span> Как мы измеряем</h4>
+            <div class="outline-text-4" id="text-1-1-2">
+              <p>
+                Сейчас модуль обновления сам логирует все свои стадии, и можно легко понять
+                причину замедления: медленнее стал отвечать сервер либо слишком долго
+                выполняется JavaScript. Выглядит это примерно так:
+              </p>
+
+              <div class="org-src-container">
+                <pre class="src src-js"><span style="color: #a45bad;">this</span>.timings[<span style="color: #2d9574;">'look-ma-im-start'</span>] = Date.now();
+                  <span style="color: #a45bad;">this</span>.timings[<span style="color: #2d9574;">'look-ma-finish'</span>] = Date.now();
+                </pre>
+              </div>
+
+              <p>
+                C помощью <code>Date.now()</code> мы получаем текущее время. Все тайминги собираются и при
+                отправке рассчитываются. На этапах разница между “end” и “start” не считается,
+                а все вычисления производятся в конце:
+              </p>
+
+
+              <div class="org-src-container">
+                <pre class="src src-js"><span style="color: #4f97d7; font-weight: bold;">var</span> <span style="color: #7590db;">totalTime</span> = <span style="color: #a45bad;">this</span>.timings[<span style="color: #2d9574;">'look-ma-finish'</span>] - <span style="color: #a45bad;">this</span>.timings[<span style="color: #2d9574;">'look-ma-im-start'</span>];
+                </pre>
+              </div>
+
+              <p>
+
+                И на сервер прилетают подобные записи:
+              </p>
+
+              <p>
+                <code>serverResponse=50&amp;domUpdate=60</code>
+              </p>
+            </div>
+          </div>
+
+          <div id="outline-container-orgcc246ae" class="outline-4">
+            <h4 id="orgcc246ae"><span class="section-number-4">1.1.3</span> Как мы ускоряем</h4>
+            <div class="outline-text-4" id="text-1-1-3">
+              <p>
+                Чтобы снизить время загрузки почты при выходе новых версий,
+                мы уже делаем следующее:
+              </p>
+
+              <ul class="org-ul">
+                <li>включаем <abbr title="GNU Zip">gzip</abbr>;</li>
+                <li>выставляем заголовки кэширования;</li>
+                <li>фризим <abbr title="Cascading Style Sheets">CSS,</abbr> <abbr title="Java Script">JS</abbr>, шаблоны и картинки;</li>
+                <li>используем <abbr title="Content Delivery Network">CDN;</abbr></li>
+              </ul>
+
+              <p>
+                Мы подумали: <q>«А что если хранить где-то старую версию файлов, а при выходе новой
+                передавать только diff между ней и той, которая сохранена у пользователя?»</q>
+                В браузере же останется просто наложить патч на клиенте.
+              </p>
+
+              <p>
+
+                На самое деле эта идея не нова. Уже существуют стандарты для <abbr title="HyperText Transfer Protocol">HTTP</abbr> — например,
+                RFC 3229 «Delta encoding in <abbr title="HyperText Transfer Protocol">HTTP</abbr>» и «Google SDHC», — но по разным причинам они
+                не получили должного распространения в браузерах и на серверах.
+              </p>
+
+              <p>
+                Мы же решили сделать свой аналог на <abbr title="Java Script">JS</abbr>. Чтобы реализовать этот метод обновления,
+                начали искать реализации diff на <abbr title="Java Script">JS</abbr>. На популярных хостингах кода нашли
+                библиотеки:
+              </p>
+              <ul class="org-ul">
+                <li>VCDiff</li>
+                <li>google-diff-patch-match</li>
+              </ul>
+
+              <p>
+                Для окончательного выбора библиотеки нам нужно сравнить:
+              </p>
+
+              <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+                <colgroup>
+                  <col  class="org-left" />
+
+                  <col  class="org-right" />
+
+                  <col  class="org-right" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th scope="col" class="org-left">Библиотека</th>
+                    <th scope="col" class="org-right">IE 9</th>
+                    <th scope="col" class="org-right">Opera 12</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="org-left">vcdiff</td>
+                    <td class="org-right">8</td>
+                    <td class="org-right">5</td>
+                  </tr>
+
+                  <tr>
+                    <td class="org-left">google diff</td>
+                    <td class="org-right">1363</td>
+                    <td class="org-right">76</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>
+                После того как мы определились с библиотекой для диффа, нужно определиться с тем,
+                где и как хранить статику на клиенте.
+              </p>
+
+              <p>
+                Формат файла с патчами для проекта выглядит так:
+              </p>
+              <div class="org-src-container">
+                <pre class="src src-js">[
+    {
+                  <span style="color: #2d9574;">"k"</span>: <span style="color: #2d9574;">"jane.css"</span>,
+                  <span style="color: #2d9574;">"p"</span>: [patch],
+                  <span style="color: #2d9574;">"s"</span>: 4554
+    },
+    {
+                  <span style="color: #2d9574;">"k"</span>: <span style="color: #2d9574;">"jane.css"</span>,
+                  <span style="color: #2d9574;">"p"</span>: [patch],
+                  <span style="color: #2d9574;">"s"</span>: 4554
+    }
+]
+                </pre>
+              </div>
+
+              <p>
+                То есть это обычный массив из объектов. Каждый объект — отдельный ресурс. У
+                каждого объекта есть три свойства. k — названия ключа в localStorage для этого
+                ресурса. p — патч для ресурса, который сгенерировал vcdiff. s — чексумма для
+                ресурса актуальной версии, чтобы потом можно было проверить правильность
+                наложения патча на клиенте. Чексумма вычисляется по алгоритму Флетчера.
+              </p>
+            </div>
+          </div>
+
+          <div id="outline-container-org6af9031" class="outline-4">
+            <div class="outline-text-4" id="text-1-1-4">
+              <p>
+                <dl><dt>Алгоритм Бройдена — Флетчера — Гольдфарба — Шанно (BFGS)</dt><dd> — итерационный метод численной оптимизации, предназначенный для
+                нахождения локального максимума/минимума нелинейного функционала без ограничений.</dd></dl>
+              </p>
+
+
+              <p class="verse">
+                Дано &epsilon;, x<sub>0</sub><br />
+                Инициализировать <b>H<sub>0</sub></b><br />
+                k = 0<br />
+                while ||&nabla; f<sub>k</sub>|| &gt; &epsilon;<br />
+                &#xa0;&#xa0;&#xa0;&#xa0;найти направление p<sub>k</sub> = - C<sub>k</sub> &nabla; f<sub>k</sub><br />
+                &#xa0;&#xa0;&#xa0;&#xa0;вычислить x<sub>(k+1)</sub> = x<sub>k</sub> + &alpha;<sub>k</sub> p<sub>k</sub>, &alpha;<sub>k</sub> удовлетворяет условиям Вольфа<br />
+                &#xa0;&#xa0;&#xa0;&#xa0;обозначить s<sub>k</sub> = x<sub>(k+1)</sub> - x<sub>k</sub> и y<sub>k</sub> = &nabla; f<sub>(k+1)</sub> - &nabla; f<sub>k</sub><br />
+                &#xa0;&#xa0;&#xa0;&#xa0;вычислить C<sub>(k+1)</sub><br />
+                &#xa0;&#xa0;&#xa0;&#xa0;k = k + 1<br />
+                end<br />
+              </p>
+
+
+              <p>
+                Почему именно алгоритм Флетчера, а не другие популярные алгоритмы вроде:
+                CRC16/32 - алгоритм нахождения контрольной суммы, предназначенный для проверки
+                целостности данных
+                md5 - 128-битный алгоритм хеширования. Предназначен для создания «отпечатков»
+                или дайджестов сообщения произвольной длины и последующей проверки
+                их подлинности.
+              </p>
+
+              <p>
+                Потому что он быстрый, компактный и легок в реализации.
+              </p>
+            </div>
+          </div>
+
+          <div id="outline-container-orgf8431db" class="outline-4">
+            <h4 id="orgf8431db"><span class="section-number-4">1.1.5</span> Итог</h4>
+            <div class="outline-text-4" id="text-1-1-5">
+              <p>
+                Фактически мы экономим 80-90% трафика. Размер загружаемой статитки в байтах:
+              </p>
+
+              <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+                <colgroup>
+                  <col  class="org-right" />
+
+                  <col  class="org-right" />
+
+                  <col  class="org-left" />
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td class="org-right">Релиз</td>
+                    <td class="org-right">С патчем</td>
+                    <td class="org-left">Без патча</td>
+                  </tr>
+
+                  <tr>
+                    <td class="org-right">7.7.20</td>
+                    <td class="org-right">397</td>
+                    <td class="org-left">174 549</td>
+                  </tr>
+
+                  <tr>
+                    <td class="org-right">7.7.21</td>
+                    <td class="org-right">383</td>
+                    <td class="org-left">53 995</td>
+                  </tr>
+
+                  <tr>
+                    <td class="org-right">7.7.22</td>
+                    <td class="org-right">483</td>
+                    <td class="org-left">3 995</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+    <div id="postamble" class="status">
+      <p class="author">Автор: @doochik С++ разработик Компания: Яндекс <a href="mailto:doochik@yandex-team.ru">doochik@yandex-team.ru</a></p>
+    </div>
+          <div id="outline-container-org4169984" class="outline-4">
+            <h4 id="org4169984"><span class="section-number-4">1.1.6</span> Комментарии (3):</h4>
+            <div class="outline-text-4" id="text-1-1-6">
+            </div>
+            <ol class="org-ol">
+              <li><a id="org8675eaa"></a>- Mogaika (<a href="mailto:mogaika@yandex-team.ru">mogaika@yandex-team.ru</a>) 30 ноября 2014 в 17:05<br />
+                <div class="outline-text-5" id="text-1-1-6-1">
+                  <p>
+                    А можете привести сравнение, на сколько быстрее грузится lite версия?
+                  </p>
+                </div>
+              </li>
+
+              <li><a id="org1336839"></a>- JIguse (mrawesome@yandex.ru) 29 ноября 2014 в 21:30<br />
+                <div class="outline-text-5" id="text-1-1-6-2">
+                  <p>
+                    Спасибо за статью, познавательно. Здорово, что Яндекс делится некоторыми
+                    подробностями о внутренней работе сервисов.
+                  </p>
+                </div>
+              </li>
+
+              <li><a id="orgf095b0e"></a>- Brister (<a href="mailto:brist89@yandex-team.ru">brist89@yandex-team.ru</a>) <time datetime="2014-11-22T17:35:00+07:00">4 ноября 2014 в 13:13</time><br />
+                <div class="outline-text-5" id="text-1-1-6-3">
+                  <p>
+                    (кол-во счастливых пользователей + кол-во удовлетворенных / 2) / (кол-во всех).
+                    Получается значение от нуля до единицы, которое, видимо, лучше всего показывает,
+                    хорошо или плохо работает почта.
+                  </p>
+
+                  <p>
+                    наверное все-таки от 0.5 до 1
+                  </p>
+                </div>
+              </li>
+
+              <li><a id="orgc1e777b"></a>- alexeimois (test@yandex.ru) <time datetime="2014-11-22T17:35:00+07:00">22 ноября 2014 в 17:35</time><br />
+                <div class="outline-text-5" id="text-1-1-6-4">
+                  <p>
+                    Мы измеряем скорость загрузки с помощью Яндекс.Метрики:
+                    <a href="help.yandex.ru/metrika/reports/monitoring_timing.xml">help.yandex.ru/metrika/reports/monitoring_timing.xml</a>
+                  </p>
+
+                  <p>
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+                    <footer><b>© Яндекс, help@yandex.ru, Хохрякова, 10</b></footer>
+  </body>
+</html>
